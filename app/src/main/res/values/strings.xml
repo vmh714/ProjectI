@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Sudoku</string>
+    <string name="app_title">Sudoku</string>
+    <string name="app_new_game">Play</string>
+    <string name="app_continue">Continue</string>
+    <string name="app_exit">Exit</string>
+    <string name="app_easy">Easy</string>
+    <string name="app_normal">Normal</string>
+    <string name="app_hard">Hard</string>
+    <string name="app_choose_difficulty">Choose Difficulty</string>
+    <string name="app_dialog_by_exit">Do you want to interrupt the game session?</string>
+    <string name="app_yes">Yes</string>
+    <string name="app_no">No</string>
+    <string name="app_mistakes">Mistakes</string>
+    <string name="app_game_over">Game Over</string>
+    <string name="app_msg_game_again">Do you want to begin new game?</string>
+    <string name="app_win">Sudoku solved!</string>
+
+    <string name="file_sudoku">sudoku.sudoku</string>
+    <string name="dir_saving_files">saving_files</string>
+</resources>
