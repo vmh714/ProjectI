@@ -2,13 +2,16 @@ package com.example.sudoku;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.sudoku.generate_sudoku.Sudoku;
@@ -16,21 +19,19 @@ import com.example.sudoku.sudoku_board.SudokuBoard;
 
 public class ActivityGame extends AppCompatActivity implements Runnable {
 
-
-
     private SudokuBoard sudokuBoard;
-    private TextView    textViewMistakeCount;
-    private TextView    textViewTimer;
+    private TextView textViewMistakeCount;
+    private TextView textViewTimer;
     private int countMistake;
-
     private int seconds;
     private boolean isStop;
+    private boolean isPaused = false;
+    private boolean allowTick = false;
+//    private int selectedNumber = 0;
+//    private Canvas canvas;
     private Handler handlerTimer;
     private static final String FILE = "saving.json";
-
-
     private final String mistakes = "Mistake";
-    //private final String mistake = findViewById(R.string.app_mistake).toString();
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -43,20 +44,77 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
         textViewMistakeCount.setText(mistakes + " " + countMistake + "/" + 3);
         textViewTimer = findViewById(R.id.textViewTimer);
         textViewTimer.setText("00:00");
-
         sudokuBoard = findViewById(R.id.sudokuBoard);
-
         Intent intent = getIntent();
-
-
-
         handlerTimer = new Handler();
-        handlerTimer.postDelayed(this::run, 1000);
 
+        Button buttonPause = findViewById(R.id.buttonPause);
+        buttonPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handlePause();
+            }
+        });
+
+        startGame();
+    }
+
+    private void startGame() {
+        allowTick = true;
+        handlerTimer.postDelayed(this::run, 1000);
+    }
+
+    // Xử lý tạm dừng/tiếp tục
+    private void handlePause() {
+        isPaused = !isPaused;
+        if (isPaused) {
+            allowTick = false; // Không cho phép onTick() chạy khi tạm dừng
+            sudokuBoard.setEnabled(false);
+            // Tạo dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_pause, null);
+            Button buttonResume = dialogView.findViewById(R.id.buttonResume);
+            Button buttonExit = dialogView.findViewById(R.id.buttonExit);
+
+            builder.setView(dialogView);
+            AlertDialog dialog = builder.create();
+            //Khi người dùng nhấn ra ngoài dialog sẽ không bị mất
+            dialog.setCanceledOnTouchOutside(false);
+
+            // Xử lý sự kiện cho nút "Resume"
+            buttonResume.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    isPaused = false;
+                    allowTick = true;
+                    sudokuBoard.setEnabled(true);
+                }
+            });
+
+            // Xử lý sự kiện cho nút "Exit"
+            buttonExit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    isPaused = false;
+                    allowTick = false;
+                    Intent intent = new Intent(ActivityGame.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+
+            // Hiển thị dialog
+            dialog.show();
+        } else {
+            allowTick = true; // Cho phép onTick() chạy khi tiếp tục
+            sudokuBoard.setEnabled(true);
+        }
     }
 
     public void onTick() {
-        if(!isStop) {
+        if (!isStop) {
             this.seconds++;
             int seconds = this.seconds % 60;
             int minutes = this.seconds / 60;
@@ -75,37 +133,6 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
         isStop = false;
         super.onStart();
     }
-
-
-    @Override
-    public void onBackPressed() {
-
-        DialogInterface.OnClickListener listener = (dialog, which) -> {
-            switch (which) {
-
-                case Dialog.BUTTON_POSITIVE:
-                    Intent intent = new Intent(this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                    break;
-
-                case Dialog.BUTTON_NEGATIVE:
-                    break;
-
-
-            }
-        };
-
-        AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        adb.setMessage(R.string.app_dialog_by_exit);
-        adb.setIcon(android.R.drawable.ic_dialog_info);
-        adb.setPositiveButton(R.string.app_yes, listener);
-        adb.setNegativeButton(R.string.app_no,  listener);
-
-        adb.create();
-        adb.show();
-    }
-
     private void showAlterDialogGameOver() {
 
         DialogInterface.OnClickListener listener = (dialog, which) -> {
@@ -165,14 +192,17 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
     }
 
     private void setNum(int num) {
-        countMistake = sudokuBoard.setNumInCell(num) ? countMistake: countMistake + 1;
-        textViewMistakeCount.setText(mistakes + " " + countMistake + "/" + 3);
-        if(countMistake > 2) showAlterDialogGameOver();
-        if(Sudoku.checkWin()) {
-            showAlterDialogWin();
+        if (sudokuBoard.getSelectedRow() != -1 && sudokuBoard.getSelectedColumn() != -1) {
+            if (!sudokuBoard.isInitialCell(sudokuBoard.getSelectedRow(), sudokuBoard.getSelectedColumn())) {
+                countMistake = sudokuBoard.setNumInCell(num) ? countMistake : countMistake + 1;
+                textViewMistakeCount.setText(mistakes + " " + countMistake + "/" + 3);
+                if (countMistake > 2) showAlterDialogGameOver();
+                if (Sudoku.checkWin()) {
+                    showAlterDialogWin();
+                }
+            }
         }
     }
-
 
     public void onClick_One(View view) {
         setNum(1);
@@ -214,8 +244,9 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
 
     @Override
     public void run() {
-        onTick();
+        if (allowTick) {
+            onTick();
+        }
         handlerTimer.postDelayed(this::run, 1000);
-
     }
 }

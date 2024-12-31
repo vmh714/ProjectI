@@ -191,6 +191,14 @@
         android:textSize="20sp"
         custom:layout_constraintBottom_toTopOf="@+id/guideline14"
         custom:layout_constraintStart_toStartOf="@+id/guideline11" />
-
+    <Button
+        android:id="@+id/buttonPause"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/pause"
+        custom:layout_constraintEnd_toEndOf="parent"
+        custom:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

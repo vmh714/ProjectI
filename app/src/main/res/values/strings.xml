@@ -15,7 +15,9 @@
     <string name="app_game_over">Game Over</string>
     <string name="app_msg_game_again">Do you want to begin new game?</string>
     <string name="app_win">Sudoku solved!</string>
-
+    <string name="game_paused">Game Paused</string>
+    <string name="resume">Resume</string>
+    <string name="exit">Exit</string>
     <string name="file_sudoku">sudoku.sudoku</string>
     <string name="dir_saving_files">saving_files</string>
 </resources>
