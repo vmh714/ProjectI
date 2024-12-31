@@ -2,22 +2,26 @@ package com.example.sudoku.generate_sudoku;
 
 import java.lang.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Sudoku
 {
+    //Mảng 2 chiều lưu trữ các số hiển thị cho người chơi (bảng Sudoku với các ô trống)
     private static int[][] visibleNumbersMatrix;
-    //keyMatrix - filled sudoku
+    //Mảng 2 chiều lưu trữ bảng Sudoku đã được giải hoàn chỉnh
     private static int[][] keyMatrix;
+    // Mảng 2 chiều lưu trữ các câu trả lời của người dùng.
     private static int[][] answerUser;
-    //remainsArrange -
+    //Biến đếm số lượng câu trả lời đúng
     private static int countCorrectAnswers;
-    private int N; // number of columns/rows.
-    private int SRN; // square root of N
-    private int K; // No. Of missing digits
+    private int N; // Kích thước của bảng Sudoku 9
+    private int SRN; // Căn bậc hai của N 3
+    private int K; // Số lượng ô trống cần tạo -độ khó
+    //Tọa độ của ô đang chọn
     private static int selected_row;
     private static int selected_column;
-    private static Difficult difficult;
+    private static Difficult difficult; // Enum xác định độ khó
     public enum Difficult {
         Easy,
         Normal,
@@ -25,8 +29,8 @@ public class Sudoku
     }
     private static Sudoku sudoku;
 
-    //The difficult define num of missing digits
-    private static final int EASY   = 35;
+    //Hằng số xác định các ô trống tương ứng với mức độ khó
+    private static final int EASY   = 1;
     private static final int NORMAL = 43;
     private static final int HARD   = 50;
 
@@ -36,123 +40,122 @@ public class Sudoku
         this.N = N;
         this.K = K;
 
-        countCorrectAnswers = K;
-
-        selected_column = -1;
+        countCorrectAnswers = K;//số ô che tương ứng với số ô cần điền để chiến thắng
+        selected_column = -1;//tọa độ ô được chọn ban đầu
         selected_row    = -1;
-
         // Compute square root of N
         Double SRNd = Math.sqrt(N);
         SRN = SRNd.intValue();
-
-        answerUser = new int[N][N];
-        visibleNumbersMatrix = new int[N][N];
+        answerUser = new int[N][N];//khởi tạo mảng chứa câu trả lời
+        visibleNumbersMatrix = new int[N][N];//khởi tạo mảng chứa câu đố
     }
+    //Phương thức trả về mảng chứa câu đố, khởi tạo mặc định với độ khó là dễ
     public static int[][] getVisibleNumbersMatrix() {
         if(visibleNumbersMatrix == null) {
             generateSudoku(Difficult.Easy);
         }
         return visibleNumbersMatrix;
     }
+    // getter lấy độ khó
     public static Difficult getDifficult() {
         return difficult;
     }
     public static int[][] generateSudoku(Difficult difficult) {
-
         keyMatrix = new int[9][9];
         Sudoku.difficult = difficult;
-
-        switch (difficult) {
-
+        switch (difficult) {// Xác định độ khó và tạo một bảng sudoku đó theo độ khó đã chọn
             case Easy: {
                 sudoku = new Sudoku(9, EASY);
                 break;
             }
-
             case Normal: {
                 sudoku = new Sudoku(9, NORMAL);
                 break;
             }
-
             case Hard: {
                 sudoku = new Sudoku(9, HARD);
                 break;
             }
         }
-
-        sudoku.fillValues();
-
+        sudoku.fillValues();//điền số vào mảng câu đố
+        //sao chép mảng câu đố vào mảng lời giải
         for(int i = 0; i < sudoku.visibleNumbersMatrix.length; i++) {
             for(int j = 0; j < sudoku.visibleNumbersMatrix.length; j++) {
-
                 sudoku.keyMatrix[i][j] = sudoku.visibleNumbersMatrix[i][j];
 
             }
         }
-
+        // hoàn thiện mảng câu đố bằng cách che đi K ô tương ứng với độ khó
         sudoku.removeKDigits();
-
         return sudoku.visibleNumbersMatrix;
-
     }
-
+    //kiểm tra xem số nhập vào có trùng với kết quả không
     public static boolean checkNumInCell(int i, int j, int num) {
-
         return keyMatrix[i][j] == num;
-
     }
-
+    //kiểm tra xem người chơi đã thắng chưa
     public static boolean checkWin() {
-
         countCorrectAnswers = 81;
+        //tính số câu trả lời đúng bằng cách dựa vào số ô trống ban đầu và số ô trả lời đúng
         countCorrectAnswers -= difficult == Difficult.Easy ? EASY :
                 difficult == Difficult.Normal ? NORMAL : HARD;
-
         for(int i = 0; i < answerUser.length; i++) {
-
             for(int j = 0; j < answerUser[i].length; j++) {
-
                 countCorrectAnswers += checkNumInCell(i, j, answerUser[i][j]) ? 1: 0;
-
             }
         }
-
         return countCorrectAnswers == 81;
     }
+//    public static boolean checkWin() {
+//        // Kiểm tra xem tất cả các ô đã được điền chưa
+//        if (!isBoardFilled()) {
+//            return false; // Chưa điền xong
+//        }
+//
+//        // Nếu đã điền xong, kiểm tra tính đúng sai
+//        for (int i = 0; i < answerUser.length; i++) {
+//            for (int j = 0; j < answerUser[i].length; j++) {
+//                if (answerUser[i][j] != keyMatrix[i][j]) {
+//                    // Có ít nhất một ô sai
+//                    return false;
+//                }
+//            }
+//        }
+//
+//        // Tất cả các ô đều đúng
+//        return true;
+//    }
+//
+//    // Phương thức kiểm tra xem bảng đã được điền đầy chưa
+//    private static boolean isBoardFilled() {
+//        for (int i = 0; i < answerUser.length; i++) {
+//            for (int j = 0; j < answerUser[i].length; j++) {
+//                if (answerUser[i][j] == 0) {
+//                    return false; // Vẫn còn ô trống
+//                }
+//            }
+//        }
+//        return true; // Tất cả các ô đã được điền
+//    }
 
     // Sudoku Generator
     private void fillValues()
     {
-        // Fill the diagonal of SRN x SRN matrices
+        // điền các số trong các lưới 3x3 nhỏ trước
         fillDiagonal();
-
-        // Fill remaining blocks
+        // điền các số vào các ô còn lại
         fillRemaining(0, SRN);
-
     }
 
-    // Fill the diagonal SRN number of SRN x SRN matrices
     private void fillDiagonal()
     {
-
         for (int i = 0; i<N; i=i+SRN)
-
-            // for diagonal box, start coordinates->i==j
+            // điền các số ngẫu nhiên trong các ô 3x3 nhỏ có tọa độ chéo
             fillBox(i, i);
     }
 
-    // Returns false if given 3 x 3 block contains num.
-    private boolean unUsedInBox(int rowStart, int colStart, int num)
-    {
-        for (int i = 0; i<SRN; i++)
-            for (int j = 0; j<SRN; j++)
-                if (visibleNumbersMatrix[rowStart+i][colStart+j]==num)
-                    return false;
 
-        return true;
-    }
-
-    // Fill a 3 x 3 matrix.
+    // điền các ô trong lưới 3x3
     private void fillBox(int row,int col)
     {
         int num;
@@ -165,46 +168,11 @@ public class Sudoku
                     num = randomGenerator(N);
                 }
                 while (!unUsedInBox(row, col, num));
-
                 visibleNumbersMatrix[row+i][col+j] = num;
             }
         }
     }
-
-    // Random generator
-    private int randomGenerator(int num)
-    {
-        return (int) Math.floor((Math.random()*num+1));
-    }
-
-    // Check if safe to put in cell
-    private boolean CheckIfSafe(int i,int j,int num)
-    {
-        return (unUsedInRow(i, num) &&
-                unUsedInCol(j, num) &&
-                unUsedInBox(i-i%SRN, j-j%SRN, num));
-    }
-
-    // check in the row for existence
-    private boolean unUsedInRow(int i,int num)
-    {
-        for (int j = 0; j<N; j++)
-            if (visibleNumbersMatrix[i][j] == num)
-                return false;
-        return true;
-    }
-
-    // check in the row for existence
-    private boolean unUsedInCol(int j,int num)
-    {
-        for (int i = 0; i<N; i++)
-            if (visibleNumbersMatrix[i][j] == num)
-                return false;
-        return true;
-    }
-
-    // A recursive function to fill remaining
-    // matrix
+    //điền các ô còn lại đảm bảo điều kiện của bảng sudoku
     private boolean fillRemaining(int i, int j)
     {
         // System.out.println(i+" "+j);
@@ -251,8 +219,46 @@ public class Sudoku
         return false;
     }
 
-    // Remove the K no. of digits to
-    // complete game
+    // Kiểm tra xem điền số vào ô có tọa độ i,j có hợp lệ không
+    private boolean CheckIfSafe(int i,int j,int num)
+    {
+        return (unUsedInRow(i, num) &&
+                unUsedInCol(j, num) &&
+                unUsedInBox(i-i%SRN, j-j%SRN, num));
+    }
+    // kiểm tra số đã có trong hàng chưa
+    private boolean unUsedInRow(int i,int num)
+    {
+        for (int j = 0; j<N; j++)
+            if (visibleNumbersMatrix[i][j] == num)
+                return false;
+        return true;
+    }
+
+    // kiểm tra số đã có trong cột chưa
+    private boolean unUsedInCol(int j,int num)
+    {
+        for (int i = 0; i<N; i++)
+            if (visibleNumbersMatrix[i][j] == num)
+                return false;
+        return true;
+    }
+    //kiểm tra số đã có trong lưới 3x3 chưa
+    private boolean unUsedInBox(int rowStart, int colStart, int num)
+    {
+        for (int i = 0; i<SRN; i++)
+            for (int j = 0; j<SRN; j++)
+                if (visibleNumbersMatrix[rowStart+i][colStart+j]==num)
+                    return false;
+
+        return true;
+    }
+    // trả một số ngẫu nhiên từ 1 đến 9
+    private int randomGenerator(int num)
+    {
+        return (int) Math.floor((Math.random()*num+1));
+    }
+    // xóa ngẫu nhiên K ô để tạo thành các ô trống
     private void removeKDigits()
     {
         int count = K;
@@ -275,6 +281,82 @@ public class Sudoku
             }
         }
     }
+//    private void removeKDigits() {
+//        int count = K;
+//        List<Integer> cellIds = new ArrayList<>();
+//        for (int i = 0; i < N * N; i++) {
+//            cellIds.add(i);
+//        }
+//        Collections.shuffle(cellIds); // Xáo trộn thứ tự các ô
+//
+//        while (count != 0 && !cellIds.isEmpty()) {
+//            int cellId = cellIds.remove(0);
+//            int i = cellId / N;
+//            int j = cellId % N;
+//
+//            // Lưu lại giá trị hiện tại để khôi phục nếu cần
+//            int temp = visibleNumbersMatrix[i][j];
+//            if (temp == 0) continue; // Ô đã trống
+//
+//            visibleNumbersMatrix[i][j] = 0;
+//
+//            // Kiểm tra xem Sudoku có còn giải duy nhất sau khi xóa
+//            if (hasUniqueSolution()) {
+//                count--;
+//            } else {
+//                // Khôi phục giá trị nếu việc xóa tạo ra nhiều lời giải
+//                visibleNumbersMatrix[i][j] = temp;
+//            }
+//        }
+//    }
+//
+//    // Phương thức kiểm tra tính duy nhất của lời giải
+//    private boolean hasUniqueSolution() {
+//        int[][] tempBoard = new int[N][N];
+//        for (int i = 0; i < N; i++) {
+//            System.arraycopy(visibleNumbersMatrix[i], 0, tempBoard[i], 0, N);
+//        }
+//
+//        return countSolutions(tempBoard) == 1;
+//    }
+//
+//    // Phương thức đệ quy để đếm số lượng lời giải
+//    private int countSolutions(int[][] board) {
+//        int[] emptyCell = findEmptyCell(board);
+//        if (emptyCell == null) {
+//            return 1; // Không còn ô trống, đây là một lời giải
+//        }
+//
+//        int row = emptyCell[0];
+//        int col = emptyCell[1];
+//        int count = 0;
+//
+//        for (int num = 1; num <= N; num++) {
+//            if (CheckIfSafe(row, col, num)) {
+//                board[row][col] = num;
+//                count += countSolutions(board);
+//                board[row][col] = 0; // Backtrack
+//
+//                // Nếu đã tìm thấy hơn 1 lời giải, dừng lại
+//                if (count > 1) {
+//                    return count;
+//                }
+//            }
+//        }
+//        return count;
+//    }
+//
+//    // Phương thức tìm ô trống đầu tiên
+//    private int[] findEmptyCell(int[][] board) {
+//        for (int i = 0; i < N; i++) {
+//            for (int j = 0; j < N; j++) {
+//                if (board[i][j] == 0) {
+//                    return new int[]{i, j};
+//                }
+//            }
+//        }
+//        return null; // Không tìm thấy ô trống
+//    }
     public static List<int[]> getCellsWithValue(int value) {
         List<int[]> cells = new ArrayList<>();
         if (value == 0) return cells;

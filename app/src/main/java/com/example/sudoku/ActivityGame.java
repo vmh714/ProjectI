@@ -27,6 +27,7 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
     private boolean isPaused = false;
     private boolean allowTick = false;
     private Handler handlerTimer;
+    private TextView textViewDifficult;
     private boolean[] isNumCompleted; //mảng boolean để theo dõi trạng thái hoàn thành của các số
 //    private static final String FILE = "saving.json";
     private final String mistakes = "Mistake";
@@ -50,6 +51,13 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
         for (int i = 0; i < 9; i++) {
             isNumCompleted[i] = false; // Khởi tạo tất cả các số đều chưa hoàn thành
         }
+
+        textViewDifficult = findViewById(R.id.textViewDifficult);
+
+        // Lấy độ khó và hiển thị
+        Sudoku.Difficult difficult = Sudoku.getDifficult();
+        String difficultStr = difficult.toString(); // Chuyển enum Difficult thành String
+        textViewDifficult.setText(difficultStr);
 
         Button buttonPause = findViewById(R.id.buttonPause);
         buttonPause.setOnClickListener(new View.OnClickListener() {
@@ -198,10 +206,10 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
         countMistake = sudokuBoard.setNumInCell(num) ? countMistake: countMistake + 1;
         textViewMistakeCount.setText(mistakes + " " + countMistake + "/" + 3);
         if(countMistake > 2) showAlterDialogGameOver();
+        checkAndUpdateButtonVisibility();
         if(Sudoku.checkWin()) {
             showAlterDialogWin();
         }
-        checkAndUpdateButtonVisibility();
     }
     // Phương thức kiểm tra và cập nhật trạng thái hiển thị của các nút số
     private void checkAndUpdateButtonVisibility() {

@@ -184,7 +184,16 @@
         android:textSize="20sp"
         custom:layout_constraintBottom_toTopOf="@+id/guideline14"
         custom:layout_constraintEnd_toStartOf="@+id/guideline13" />
-
+    <TextView
+        android:id="@+id/textViewDifficult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Easy"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        custom:layout_constraintBottom_toTopOf="@+id/guideline14"
+        custom:layout_constraintEnd_toStartOf="@+id/textViewMistakeCount"
+        custom:layout_constraintStart_toEndOf="@+id/textViewTimer" />
     <TextView
         android:id="@+id/textViewTimer"
         android:layout_width="wrap_content"
