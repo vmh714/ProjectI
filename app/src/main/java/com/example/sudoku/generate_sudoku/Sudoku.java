@@ -15,26 +15,20 @@ public class Sudoku
     private int N; // number of columns/rows.
     private int SRN; // square root of N
     private int K; // No. Of missing digits
-
     private static int selected_row;
     private static int selected_column;
-
     private static Difficult difficult;
-
     public enum Difficult {
-
         Easy,
         Normal,
         Hard
-
     }
-
     private static Sudoku sudoku;
 
     //The difficult define num of missing digits
-    private static final int EASY   = 40;
-    private static final int NORMAL = 50;
-    private static final int HARD   = 55;
+    private static final int EASY   = 35;
+    private static final int NORMAL = 43;
+    private static final int HARD   = 50;
 
     // Constructor
     private Sudoku(int N, int K)
@@ -54,20 +48,15 @@ public class Sudoku
         answerUser = new int[N][N];
         visibleNumbersMatrix = new int[N][N];
     }
-
-
-
     public static int[][] getVisibleNumbersMatrix() {
         if(visibleNumbersMatrix == null) {
             generateSudoku(Difficult.Easy);
         }
         return visibleNumbersMatrix;
     }
-
     public static Difficult getDifficult() {
         return difficult;
     }
-
     public static int[][] generateSudoku(Difficult difficult) {
 
         keyMatrix = new int[9][9];
@@ -332,5 +321,21 @@ public class Sudoku
 
     public static void setVisibleNumbersMatrix(int[][] visibleNumbersMatrix) {
         Sudoku.visibleNumbersMatrix = visibleNumbersMatrix;
+    }
+    // Phương thức trả về bảng Sudoku của người dùng, bao gồm các số đã điền và các ô trống
+    public static int[][] getUserBoard() {
+        int[][] userBoard = new int[9][9];
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                // Nếu ô đó có số (từ visibleNumbersMatrix), gán số đó vào bảng
+                if (visibleNumbersMatrix[i][j] != 0) {
+                    userBoard[i][j] = visibleNumbersMatrix[i][j];
+                } else {
+                    // Nếu ô đó trống, kiểm tra xem người dùng đã điền số nào vào chưa (từ answerUser)
+                    userBoard[i][j] = answerUser[i][j]; // Nếu answerUser[i][j] == 0, ô đó vẫn trống
+                }
+            }
+        }
+        return userBoard;
     }
 }

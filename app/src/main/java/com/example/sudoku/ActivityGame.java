@@ -27,6 +27,7 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
     private boolean isPaused = false;
     private boolean allowTick = false;
     private Handler handlerTimer;
+    private boolean[] isNumCompleted; //mảng boolean để theo dõi trạng thái hoàn thành của các số
 //    private static final String FILE = "saving.json";
     private final String mistakes = "Mistake";
 
@@ -45,6 +46,11 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
         //Intent intent = getIntent();
         handlerTimer = new Handler();
 
+        isNumCompleted = new boolean[9]; // Khởi tạo mảng với 9 phần tử
+        for (int i = 0; i < 9; i++) {
+            isNumCompleted[i] = false; // Khởi tạo tất cả các số đều chưa hoàn thành
+        }
+
         Button buttonPause = findViewById(R.id.buttonPause);
         buttonPause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,7 +58,7 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
                 handlePause();
             }
         });
-
+        checkAndUpdateButtonVisibility();
         startGame();
     }
 
@@ -195,8 +201,57 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
         if(Sudoku.checkWin()) {
             showAlterDialogWin();
         }
+        checkAndUpdateButtonVisibility();
     }
-    
+    // Phương thức kiểm tra và cập nhật trạng thái hiển thị của các nút số
+    private void checkAndUpdateButtonVisibility() {
+        int[][] board = Sudoku.getUserBoard();
+        int[] numCounts = new int[9];
+
+        // Đếm số lần xuất hiện của mỗi số trong bảng
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
+                if (board[r][c] != 0) {
+                    numCounts[board[r][c] - 1]++;
+                }
+            }
+        }
+
+        // Cập nhật trạng thái hiển thị của các nút số
+        for (int i = 0; i < 9; i++) {
+            isNumCompleted[i] = numCounts[i] >= 9;
+            Button button = getButtonByNumber(i + 1);
+            if (button != null) {
+                button.setVisibility(isNumCompleted[i] ? View.GONE : View.VISIBLE);
+            }
+        }
+    }
+
+    // Phương thức lấy Button tương ứng với số
+    private Button getButtonByNumber(int num) {
+        switch (num) {
+            case 1:
+                return findViewById(R.id.buttonOne);
+            case 2:
+                return findViewById(R.id.buttonTwo);
+            case 3:
+                return findViewById(R.id.buttonThree);
+            case 4:
+                return findViewById(R.id.buttonFour);
+            case 5:
+                return findViewById(R.id.buttonFive);
+            case 6:
+                return findViewById(R.id.buttonSix);
+            case 7:
+                return findViewById(R.id.buttonSeven);
+            case 8:
+                return findViewById(R.id.buttonEight);
+            case 9:
+                return findViewById(R.id.buttonNine);
+            default:
+                return null;
+        }
+    }
     public void onClick_One(View view) {
         setNum(1);
     }
