@@ -17,6 +17,7 @@
         custom:textWrongAnswerColor="#CEFA0000"
         custom:cellFillColor="#6600DDFF"
         custom:cellsHighLightColor="#2600DDFF"
+        custom:cellsValueHighLightColor="#FFBB86FC"
         custom:layout_constraintBottom_toBottomOf="parent"
         custom:layout_constraintEnd_toStartOf="@+id/guideline13"
         custom:layout_constraintHorizontal_bias="0.738"

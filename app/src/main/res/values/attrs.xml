@@ -8,5 +8,6 @@
         <attr name="textWrongAnswerColor" format="color" />
         <attr name="textCorrectAnswerColor" format="color" />
         <attr name="textColor" format="color" />
+        <attr name="cellsValueHighLightColor" format="color" />
     </declare-styleable>
 </resources>

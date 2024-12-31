@@ -7,7 +7,6 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -27,10 +26,8 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
     private boolean isStop;
     private boolean isPaused = false;
     private boolean allowTick = false;
-//    private int selectedNumber = 0;
-//    private Canvas canvas;
     private Handler handlerTimer;
-    private static final String FILE = "saving.json";
+//    private static final String FILE = "saving.json";
     private final String mistakes = "Mistake";
 
     @SuppressLint("MissingInflatedId")
@@ -45,7 +42,7 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
         textViewTimer = findViewById(R.id.textViewTimer);
         textViewTimer.setText("00:00");
         sudokuBoard = findViewById(R.id.sudokuBoard);
-        Intent intent = getIntent();
+        //Intent intent = getIntent();
         handlerTimer = new Handler();
 
         Button buttonPause = findViewById(R.id.buttonPause);
@@ -192,18 +189,14 @@ public class ActivityGame extends AppCompatActivity implements Runnable {
     }
 
     private void setNum(int num) {
-        if (sudokuBoard.getSelectedRow() != -1 && sudokuBoard.getSelectedColumn() != -1) {
-            if (!sudokuBoard.isInitialCell(sudokuBoard.getSelectedRow(), sudokuBoard.getSelectedColumn())) {
-                countMistake = sudokuBoard.setNumInCell(num) ? countMistake : countMistake + 1;
-                textViewMistakeCount.setText(mistakes + " " + countMistake + "/" + 3);
-                if (countMistake > 2) showAlterDialogGameOver();
-                if (Sudoku.checkWin()) {
-                    showAlterDialogWin();
-                }
-            }
+        countMistake = sudokuBoard.setNumInCell(num) ? countMistake: countMistake + 1;
+        textViewMistakeCount.setText(mistakes + " " + countMistake + "/" + 3);
+        if(countMistake > 2) showAlterDialogGameOver();
+        if(Sudoku.checkWin()) {
+            showAlterDialogWin();
         }
     }
-
+    
     public void onClick_One(View view) {
         setNum(1);
     }

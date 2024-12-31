@@ -1,6 +1,8 @@
 package com.example.sudoku.generate_sudoku;
 
 import java.lang.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Sudoku
 {
@@ -284,7 +286,18 @@ public class Sudoku
             }
         }
     }
-
+    public static List<int[]> getCellsWithValue(int value) {
+        List<int[]> cells = new ArrayList<>();
+        if (value == 0) return cells;
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (visibleNumbersMatrix[i][j] == value || answerUser[i][j] == value) {
+                    cells.add(new int[]{i, j});
+                }
+            }
+        }
+        return cells;
+    }
     public static int getSelectedColumn() {
         return selected_column;
     }
